@@ -1,9 +1,8 @@
 use std::io::{Read, Write};
-use std::net::TcpListener;
+use std::net::{TcpListener, TcpStream};
 use std::thread;
 
 fn main() {
-    // println!("Hello, world!");
     let listener = TcpListener::bind("127.0.0.2:8020").unwrap();
     println!("Server listening");
 
@@ -12,19 +11,13 @@ fn main() {
             Ok(mut stream) => {
                 thread::spawn(move || {
                     loop {
-                        let mut read = [0;1028];
-                        match stream.read(&mut read) {
-                            Ok(n) => {
-                                if n== 0 {
-                                    break;
-                                }
-                                println!("read");
-                                stream.write(&read[0..n]).unwrap();
-                            }
-                            Err(err) => {
-                                panic!("{}", err)
-                            }
-                        }
+                        // define buffer
+                        let mut buffer = [0;1024];
+                        // read the stream and copy into the buffer
+                        stream.read(&mut buffer).unwrap();
+                        // write into the stream the buffer
+                        stream.write(&buffer).unwrap();
+                        break;
                     }
                 });
             }
